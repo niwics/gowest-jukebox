@@ -8,7 +8,7 @@ import os
 import sqlite3
 
 from hsaudiotag import auto
-from shared import SQLITE_DB_FILE, DEBUG
+from app import App, SQLITE_DB_FILE
 
 class CollectionScannerError(Exception):
     pass
@@ -32,7 +32,7 @@ class CollectionScanner(object):
         self._insert_data()
 
     def _scan_dir(self, directory):
-        if DEBUG: print "Scanning directory %s..." % directory
+        if App.is_debug(): print "Scanning directory %s..." % directory
 
         if not os.path.isdir(directory):
             raise CollectionScannerError("Error while scanning: '%s' is not a directory!" % directory)
@@ -50,9 +50,9 @@ class CollectionScanner(object):
     def _decode_id3_tag(self, filename):
         file_tags = auto.File(filename)
         if not file_tags.artist or not file_tags.title:
-            if DEBUG: print "No metadata detected in the file %s..." % filename
+            if App.is_debug(): print "No metadata detected in the file %s..." % filename
             return
-        elif DEBUG:
+        elif App.is_debug():
             print "File %s: artist: %s, title: %s" % (filename, file_tags.artist, file_tags.title)
         return filename, file_tags.artist, file_tags.title, file_tags.album, file_tags.duration, file_tags.year
 
@@ -74,3 +74,6 @@ class CollectionScanner(object):
         # Print the table contents
         for row in conn.execute("select * from song"):
             print row
+
+    def get_songs_count(self):
+        return len(self.songs)
