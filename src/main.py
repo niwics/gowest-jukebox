@@ -7,6 +7,7 @@
 
 import wx
 
+from app import App
 from main_frame import MainFrame
 
 
@@ -16,6 +17,10 @@ def main():
     :return: None (infinite WX loop)
     """
 
+    # init app settings
+    App.load_settings_from_db()
+
+    # GUI
     app = wx.App()
     MainFrame()
     app.MainLoop()

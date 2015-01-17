@@ -72,8 +72,12 @@ class CollectionScanner(object):
         conn.executemany("INSERT INTO song(%s) values (%s)" % (col_names, question_marks), self.songs)
 
         # Print the table contents
-        for row in conn.execute("select * from song"):
-            print row
+        if App.is_debug():
+            for row in conn.execute("SELECT * FROM song"):
+                print row
+
+        conn.commit()
+        conn.close()
 
     def get_songs_count(self):
         return len(self.songs)
