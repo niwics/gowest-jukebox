@@ -7,6 +7,8 @@
 import wx
 
 from settings_dialog import SettingsDialog
+from collection_panel import CollectionPanel
+
 
 APP_NAME = "GoWest Jukebox"
 
@@ -50,6 +52,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.display_settings_action, id=APP_SETTINGS)
         self.Bind(wx.EVT_MENU, self.quit_action, id=APP_EXIT)
 
+        self.refresh_components()
+
         #self.ShowFullScreen(True, style=wx.FULLSCREEN_ALL) #TODO show fullscreen
         self.SetTitle(APP_NAME)
         self.Centre()
@@ -62,8 +66,21 @@ class MainFrame(wx.Frame):
         :return: None
         """
         dialog = SettingsDialog(None)
+        dialog.set_refresh_callback(self.refresh_components)
         dialog.ShowModal()
         dialog.Destroy()
+
+    def refresh_components(self):
+        old_sizer = self.GetSizer()
+        if old_sizer:
+            del old_sizer
+
+        # main layout
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        hbox.Add(CollectionPanel(self), 2, wx.EXPAND | wx.ALL, 2)
+        hbox.Add(CollectionPanel(self), 3, wx.EXPAND | wx.ALL, 2)
+        self.SetSizer(hbox)
+        self.Layout()   # redraw layout
 
     def quit_action(self, e):
         """

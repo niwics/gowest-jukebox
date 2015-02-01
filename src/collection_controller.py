@@ -9,40 +9,39 @@ import sqlite3
 
 from hsaudiotag import auto
 from app import App, SQLITE_DB_FILE
+from song import Song
 
-class CollectionScannerError(Exception):
+class CollectionError(Exception):
     pass
 
-class CollectionScanner(object):
+class CollectionController():
 
-    DB_COL_NAMES = ['filename', 'artist', 'title', 'album', 'duration', 'year']
+    DB_COL_NAMES = ['filename', 'title', 'artist', 'album', 'duration', 'year']
 
-    def __init__(self, directory):
+    def __init__(self):
         """
         Inits the dialog.
-        :param directory:
         :return:
         """
-        self.directory = directory
-        self.songs = []
+        self.songs = None
 
     def scan(self):
         self.songs = []
-        self._scan_dir(self.directory)
+        self._scan_dir(App.get_songs_dir())
         self._insert_data()
 
     def _scan_dir(self, directory):
         if App.is_debug(): print "Scanning directory %s..." % directory
 
         if not os.path.isdir(directory):
-            raise CollectionScannerError("Error while scanning: '%s' is not a directory!" % directory)
+            raise CollectionError("Error while scanning: '%s' is not a directory!" % directory)
 
         for root, subdirs, files in os.walk(directory):
             for file in files:
                 if not file.startswith("."):
-                    song_metadata = self._decode_id3_tag(os.path.join(root, file))
-                    if song_metadata:
-                        self.songs.append(song_metadata)
+                    song = self._decode_id3_tag(os.path.join(root, file))
+                    if song:
+                        self.songs.append(song)
             for subdir in subdirs:
                 if subdir.startswith("."):
                     subdirs.remove(subdir)
@@ -54,12 +53,12 @@ class CollectionScanner(object):
             return
         elif App.is_debug():
             print "File %s: artist: %s, title: %s" % (filename, file_tags.artist, file_tags.title)
-        return filename, file_tags.artist, file_tags.title, file_tags.album, file_tags.duration, file_tags.year
+        return Song(filename, file_tags.title, file_tags.artist, file_tags.album, file_tags.duration, file_tags.year)
 
     def _insert_data(self):
 
-        col_names = ",".join(CollectionScanner.DB_COL_NAMES)
-        question_marks = ",".join(["?"] * len(CollectionScanner.DB_COL_NAMES))
+        col_names = ",".join(CollectionController.DB_COL_NAMES)
+        question_marks = ",".join(["?"] * len(CollectionController.DB_COL_NAMES))
 
         conn = sqlite3.connect(SQLITE_DB_FILE)
 
@@ -69,7 +68,7 @@ class CollectionScanner(object):
         conn.execute("CREATE TABLE song(%s)" % col_names)
 
         # fill the table with data
-        conn.executemany("INSERT INTO song(%s) values (%s)" % (col_names, question_marks), self.songs)
+        conn.executemany("INSERT INTO song(%s) values (%s)" % (col_names, question_marks), [song.attrs_to_sql() for song in self.songs])
 
         # Print the table contents
         if App.is_debug():
@@ -80,4 +79,15 @@ class CollectionScanner(object):
         conn.close()
 
     def get_songs_count(self):
-        return len(self.songs)
+        return 0 if self.songs is None else len(self.songs)
+
+    def get_all_songs(self):
+
+        if self.songs is None:
+            self.songs = []
+            conn = sqlite3.connect(SQLITE_DB_FILE)
+            conn.row_factory=sqlite3.Row
+            for row in conn.execute("SELECT * FROM song ORDER BY artist, year, album, title"):
+                self.songs.append(Song(row['filename'], row['title'], row['artist'], row['album'], row['duration'], row['year']))
+
+        return self.songs

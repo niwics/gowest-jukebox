@@ -7,7 +7,7 @@
 import wx
 
 from app import App
-from collection_scanner import CollectionScanner, CollectionScannerError
+from collection_controller import CollectionController, CollectionError
 
 
 class SettingsDialog(wx.Dialog):
@@ -22,6 +22,7 @@ class SettingsDialog(wx.Dialog):
         super(SettingsDialog, self).__init__(*args, **kw)
 
         self.directory_textfield = None
+        self.refresh_callback = None
 
         self.init_ui()
         #self.SetSize((250, 200))
@@ -89,16 +90,25 @@ class SettingsDialog(wx.Dialog):
         :param e: Event object
         :return:
         """
-        songs_dir = self.directory_textfield.GetValue()
-        scanner = CollectionScanner(songs_dir)
+        collection_ctrl = CollectionController()
         try:
-            scanner.scan()
-        except CollectionScannerError, e:
+            collection_ctrl.scan()
+        except CollectionError, e:
             dial = wx.MessageDialog(None, 'Error while scanning song files: %s' % e, 'Error while scanning', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
             return
-        dial = wx.MessageDialog(None, '%s song files were successfully loaded.' % scanner.get_songs_count(), 'Scanning completed', wx.OK)
+        if self.refresh_callback:
+            self.refresh_callback()
+        dial = wx.MessageDialog(None, '%s song files were successfully loaded.' % collection_ctrl.get_songs_count(), 'Scanning completed', wx.OK)
         dial.ShowModal()
+
+    def set_refresh_callback(self, refresh_callback):
+        """
+        Sets the callback which will be called after re-scanning the collection.
+        :param refresh_callback:
+        :return:
+        """
+        self.refresh_callback = refresh_callback
 
     def close_action(self, e):
         """
