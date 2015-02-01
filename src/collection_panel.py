@@ -22,7 +22,7 @@ class CollectionPanel(ScrolledPanel):
         """
         super(CollectionPanel, self).__init__(parent)
 
-        self.current_active_song_panel = None
+        self._current_active_song_panel = None
 
         self.SetupScrolling()
         self.SetBackgroundColour('#FAFAFA')
@@ -36,14 +36,30 @@ class CollectionPanel(ScrolledPanel):
             song_panel = CollectionSongPanel(self, song, previous_panel)
             vbox.Add(song_panel, flag=wx.EXPAND|wx.TOP, border=3)
             if previous_panel:
-                previous_panel.set_next_panel(song_panel)
+                previous_panel.next_panel = song_panel;
             else:
-                self.current_active_song_panel = song_panel
+                self._current_active_song_panel = song_panel
             previous_panel = song_panel
 
 
         # set the first panel as active
-        if self.current_active_song_panel:
-            self.current_active_song_panel.set_active()
+        if self._current_active_song_panel:
+            self._current_active_song_panel.set_active()
 
         self.SetSizer(vbox)
+
+    def previous_action(self):
+        if self._current_active_song_panel and self._current_active_song_panel._previous_panel:
+            self._current_active_song_panel._previous_panel.set_active()
+            self._current_active_song_panel.set_not_active()
+            self._current_active_song_panel = self._current_active_song_panel._previous_panel
+
+    def next_action(self):
+        if self._current_active_song_panel and self._current_active_song_panel._next_panel:
+            self._current_active_song_panel._next_panel.set_active()
+            self._current_active_song_panel.set_not_active()
+            self._current_active_song_panel = self._current_active_song_panel._next_panel
+
+    def add_action(self):
+        if self._current_active_song_panel:
+            pass

@@ -24,19 +24,42 @@ class CollectionSongPanel(wx.Panel):
         self.Border
 
         gs = wx.GridSizer(2, 2, 5, 5)
+
+        # fonts for labels
+        title_font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
+        title_font.SetWeight(wx.BOLD)
+        title_font.SetPointSize(title_font.GetPointSize()+2)
+
+        title_label = wx.StaticText(self, label=self._song.title)
+        title_label.SetFont(title_font)
+        album_label = wx.StaticText(self, label=self._song.album)
+        artist_label = wx.StaticText(self, label=self._song.artist)
+        year_label = wx.StaticText(self, label=self._song.year)
+        for label in (album_label, artist_label, year_label):
+            label.SetForegroundColour('#888888')
+
         gs.AddMany([
-            (wx.StaticText(self, label=self._song.title), wx.EXPAND),
-            (wx.StaticText(self, label=self._song.album), wx.EXPAND),
-            (wx.StaticText(self, label=self._song.artist), wx.EXPAND),
-            (wx.StaticText(self, label=self._song.year), wx.EXPAND)
+            (title_label, wx.EXPAND),
+            (album_label, wx.EXPAND),
+            (artist_label, wx.EXPAND),
+            (year_label, wx.EXPAND)
         ])
         self.SetSizer(gs)
+
+    @property
+    def previous_panel(self):
+        return self._previous_panel
+
+    @property
+    def next_panel(self):
+        return self._next_panel
+
+    @next_panel.setter
+    def next_panel(self, value):
+        self._next_panel = value
 
     def set_active(self):
         self.SetBackgroundColour('#FFFF8A')
 
     def set_not_active(self):
         self.SetBackgroundColour(None)
-
-    def set_next_panel(self, next_panel):
-        self._next_panel = next_panel

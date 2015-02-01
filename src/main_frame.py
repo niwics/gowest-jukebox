@@ -27,6 +27,8 @@ class MainFrame(wx.Frame):
         """
         super(MainFrame, self).__init__(None)
 
+        self._collection_panel = None
+
         self.init_ui()
 
     def init_ui(self):
@@ -52,12 +54,28 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.display_settings_action, id=APP_SETTINGS)
         self.Bind(wx.EVT_MENU, self.quit_action, id=APP_EXIT)
 
+        # collection action
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKey)
+
         self.refresh_components()
 
         #self.ShowFullScreen(True, style=wx.FULLSCREEN_ALL) #TODO show fullscreen
         self.SetTitle(APP_NAME)
         self.Centre()
         self.Show(True)
+
+    def onKey(self, evt):
+        if not self._collection_panel:
+            return
+
+        if evt.GetKeyCode() == wx.WXK_UP:
+            self._collection_panel.previous_action()
+        elif evt.GetKeyCode() == wx.WXK_DOWN:
+            self._collection_panel.next_action()
+        elif evt.GetKeyCode() == wx.WXK_RETURN:
+            self._collection_panel.add_action()
+        else:
+            evt.Skip()
 
     def display_settings_action(self, e):
         """
@@ -76,9 +94,10 @@ class MainFrame(wx.Frame):
             del old_sizer
 
         # main layout
+        self._collection_panel = CollectionPanel(self)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         hbox.Add(CollectionPanel(self), 2, wx.EXPAND | wx.ALL, 2)
-        hbox.Add(CollectionPanel(self), 3, wx.EXPAND | wx.ALL, 2)
+        hbox.Add(self._collection_panel, 3, wx.EXPAND | wx.ALL, 2)
         self.SetSizer(hbox)
         self.Layout()   # redraw layout
 
