@@ -58,6 +58,10 @@ class CollectionSongPanel(wx.Panel):
     def next_panel(self, value):
         self._next_panel = value
 
+    @property
+    def song(self):
+        return self._song
+
     def set_active(self):
         self.SetBackgroundColour('#FFFF8A')
 

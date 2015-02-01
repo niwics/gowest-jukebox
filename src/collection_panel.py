@@ -16,8 +16,6 @@ class CollectionPanel(ScrolledPanel):
     def __init__(self, parent):
         """
         Init GUI
-        :param args:
-        :param kwargs:
         :return: None
         """
         super(CollectionPanel, self).__init__(parent)
@@ -60,6 +58,6 @@ class CollectionPanel(ScrolledPanel):
             self._current_active_song_panel.set_not_active()
             self._current_active_song_panel = self._current_active_song_panel._next_panel
 
-    def add_action(self):
+    def get_current_song(self):
         if self._current_active_song_panel:
-            pass
+            return self._current_active_song_panel.song

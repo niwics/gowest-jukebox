@@ -8,6 +8,7 @@ import wx
 
 from settings_dialog import SettingsDialog
 from collection_panel import CollectionPanel
+from queue_panel import QueuePanel
 
 
 APP_NAME = "GoWest Jukebox"
@@ -57,6 +58,7 @@ class MainFrame(wx.Frame):
         # collection action
         self.Bind(wx.EVT_CHAR_HOOK, self.onKey)
 
+        self._queue_panel = QueuePanel(self)
         self.refresh_components()
 
         #self.ShowFullScreen(True, style=wx.FULLSCREEN_ALL) #TODO show fullscreen
@@ -72,8 +74,8 @@ class MainFrame(wx.Frame):
             self._collection_panel.previous_action()
         elif evt.GetKeyCode() == wx.WXK_DOWN:
             self._collection_panel.next_action()
-        elif evt.GetKeyCode() == wx.WXK_RETURN:
-            self._collection_panel.add_action()
+        elif evt.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_SPACE):
+            self._queue_panel.enqueue(self._collection_panel.get_current_song())
         else:
             evt.Skip()
 
@@ -95,8 +97,9 @@ class MainFrame(wx.Frame):
 
         # main layout
         self._collection_panel = CollectionPanel(self)
+
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        hbox.Add(CollectionPanel(self), 2, wx.EXPAND | wx.ALL, 2)
+        hbox.Add(self._queue_panel, 2, wx.EXPAND | wx.ALL, 2)
         hbox.Add(self._collection_panel, 3, wx.EXPAND | wx.ALL, 2)
         self.SetSizer(hbox)
         self.Layout()   # redraw layout
