@@ -17,6 +17,7 @@ class QueuePanel(ScrolledPanel):
 
     EMPTY_TEXT = "Press enter or space to play the selected song!"
 
+
     def __init__(self, parent):
         """
         Init GUI
@@ -63,10 +64,11 @@ class QueuePanel(ScrolledPanel):
         :return:
         """
         try:
+            file = open(song.filename, 'rb')
             mixer.init()
-            mixer.music.load(song.filename)
+            mixer.music.load(file)  # cannot pass the song.filename directly because of possible UnicodeDecodeError
             mixer.music.play()
-        except KeyError, e:
+        except Exception, e:
             dial = wx.MessageDialog(None, 'Error while playing song file %s: %s' % (song.filename, e), 'Error while playing', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
 
