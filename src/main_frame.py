@@ -26,7 +26,7 @@ class MainFrame(wx.Frame):
         :param kwargs:
         :return: None
         """
-        super(MainFrame, self).__init__(None)
+        super(MainFrame, self).__init__(None, size=wx.DisplaySize())
 
         self._collection_panel = None
 

@@ -8,9 +8,12 @@ from pygame import mixer
 
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
+from wx.lib.wordwrap import wordwrap
 
 
 class QueuePanel(ScrolledPanel):
+
+    EMPTY_TEXT = "Press enter or space to play the selected song!"
 
     def __init__(self, parent):
         """
@@ -27,14 +30,23 @@ class QueuePanel(ScrolledPanel):
         empty_font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
         empty_font.SetWeight(wx.BOLD)
         empty_font.SetPointSize(empty_font.GetPointSize()+2)
-        empty_label = wx.StaticText(self, label="Press enter or space \nto play the selected song!", style=wx.ALIGN_CENTER)
-        empty_label.SetFont(empty_font)
-        self._vsizer.Add(empty_label, flag=wx.EXPAND|wx.ALL, border=4)
+        self.empty_label = wx.StaticText(self, label=self.EMPTY_TEXT, style=wx.ALIGN_CENTER)
+        self.empty_label.SetFont(empty_font)
+        self._vsizer.Add(self.empty_label, flag=wx.EXPAND|wx.ALL, border=4)
 
         self.SetSizer(self._vsizer)
 
+        self.Bind(wx.EVT_SIZE, self.on_size)
+
+
     def enqueue(self, song):
+        """
+        Enwueue the selected song - actualize the queue panel and play it.
+        :param song:
+        :return:
+        """
         self._vsizer.Clear(True)
+        self.empty_label = None
 
         title_font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
         title_font.SetWeight(wx.BOLD)
@@ -63,6 +75,11 @@ class QueuePanel(ScrolledPanel):
         self.Layout()   # redraw
 
     def play(self, song):
+        """
+        Play the given song.
+        :param song:
+        :return:
+        """
         try:
             mixer.init()
             mixer.music.load(song.filename)
@@ -70,3 +87,14 @@ class QueuePanel(ScrolledPanel):
         except KeyError, e:
             dial = wx.MessageDialog(None, 'Error while playing song file %s: %s' % (song.filename, e), 'Error while playing', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
+
+    def on_size(self, event):
+        """
+        Resize the empty label text - wrap into lines.
+        :param event:
+        :return:
+        """
+        if self.empty_label:
+            width = event.GetSize()[0]
+            wrapped_text = wordwrap(self.EMPTY_TEXT, width, wx.ClientDC(self.empty_label))
+            self.empty_label.SetLabel(wrapped_text)
