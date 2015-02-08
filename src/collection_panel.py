@@ -51,12 +51,14 @@ class CollectionPanel(ScrolledPanel):
             self._current_active_song_panel._previous_panel.set_active()
             self._current_active_song_panel.set_not_active()
             self._current_active_song_panel = self._current_active_song_panel._previous_panel
+            self.Layout()
 
     def next_action(self):
         if self._current_active_song_panel and self._current_active_song_panel._next_panel:
             self._current_active_song_panel._next_panel.set_active()
             self._current_active_song_panel.set_not_active()
             self._current_active_song_panel = self._current_active_song_panel._next_panel
+            self.Layout()
 
     def get_current_song(self):
         if self._current_active_song_panel:

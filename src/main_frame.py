@@ -26,7 +26,7 @@ class MainFrame(wx.Frame):
         :param kwargs:
         :return: None
         """
-        super(MainFrame, self).__init__(None, size=wx.DisplaySize())
+        super(MainFrame, self).__init__(None)
 
         self._collection_panel = None
 
@@ -62,6 +62,7 @@ class MainFrame(wx.Frame):
         #self.ShowFullScreen(True, style=wx.FULLSCREEN_ALL) #TODO show fullscreen
         self.SetTitle(APP_NAME)
         self.Centre()
+        self.Maximize(True)
         self.Show(True)
 
     def onKey(self, evt):
