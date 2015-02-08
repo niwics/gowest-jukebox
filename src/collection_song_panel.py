@@ -12,16 +12,12 @@ class CollectionSongPanel(wx.Panel):
     def __init__(self, parent_panel, song, previous_panel):
         """
         Init GUI
-        :param args:
-        :param kwargs:
         :return: None
         """
         super(CollectionSongPanel, self).__init__(parent_panel)
         self._song = song
         self._previous_panel = previous_panel
         self._next_panel = None
-
-        self.Border
 
         gs = wx.GridSizer(2, 2, 5, 5)
 

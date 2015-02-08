@@ -10,6 +10,8 @@ import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 from wx.lib.wordwrap import wordwrap
 
+from queue_song_panel import QueueSongPanel
+
 
 class QueuePanel(ScrolledPanel):
 
@@ -48,27 +50,7 @@ class QueuePanel(ScrolledPanel):
         self._vsizer.Clear(True)
         self.empty_label = None
 
-        title_font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
-        title_font.SetWeight(wx.BOLD)
-        title_font.SetPointSize(title_font.GetPointSize()+2)
-        title_label = wx.StaticText(self, label=song.title)
-        title_label.SetFont(title_font)
-        self._vsizer.Add(title_label, flag=wx.EXPAND|wx.ALL, border=4)
-
-        others_font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
-        others_font.SetPointSize(others_font.GetPointSize()+1)
-
-        artist_label = wx.StaticText(self, label=song.artist)
-        artist_label.SetFont(others_font)
-        self._vsizer.Add(artist_label, flag=wx.EXPAND|wx.ALL, border=4)
-
-        album_label = wx.StaticText(self, label=song.album)
-        album_label.SetFont(others_font)
-        self._vsizer.Add(album_label, flag=wx.EXPAND|wx.ALL, border=4)
-
-        year_label = wx.StaticText(self, label=song.year)
-        year_label.SetFont(others_font)
-        self._vsizer.Add(year_label, flag=wx.EXPAND|wx.ALL, border=4)
+        self._vsizer.Add(QueueSongPanel(self, song), flag=wx.EXPAND|wx.ALL, border=4)
 
         self.play(song)
 
