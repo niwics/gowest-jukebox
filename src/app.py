@@ -3,19 +3,18 @@
 
 # @author: www.niwi.cz
 
+import os
 import sqlite3
-
-
-SQLITE_DB_FILE = "songs_db.db"
 
 
 class App():
     """
     Class for storing settings shared across application components.
     """
-
-    _debug = True
+    _debug = False
     _songs_dir = ""
+    _sqlite_db_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "songs_db.db")
+
 
     @classmethod
     def load_settings_from_db(cls):
@@ -23,7 +22,7 @@ class App():
         Loads app settings from the SQLite DB
         :return:
         """
-        conn = sqlite3.connect(SQLITE_DB_FILE)
+        conn = sqlite3.connect(cls._sqlite_db_file)
         conn.row_factory = sqlite3.Row
 
         # loads the songs_dir; empty if not found
@@ -32,7 +31,7 @@ class App():
                 cls._songs_dir = row["value"]
         except sqlite3.OperationalError, e:
             print "SQLite DB %s: Could not load the key 'songs_dir' from the 'settings' table. Error: %s" % \
-                  (SQLITE_DB_FILE, e)
+                  (cls._sqlite_db_file, e)
         if cls.is_debug(): print "App songs_dir: '%s'" % cls._songs_dir
 
     @classmethod
@@ -56,7 +55,7 @@ class App():
         :return:
         """
         if cls.is_debug(): print "Setting songs_dir to: '%s'" % songs_dir
-        conn = sqlite3.connect(SQLITE_DB_FILE)
+        conn = sqlite3.connect(cls._sqlite_db_file)
         # create the new table
         conn.execute("CREATE TABLE IF NOT EXISTS settings(`key` PRIMARY KEY, `value`)")
         # insert the value

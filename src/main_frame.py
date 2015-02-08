@@ -42,11 +42,9 @@ class MainFrame(wx.Frame):
 
         # menu items
         settings_item = wx.MenuItem(app_menu, APP_SETTINGS, '&Settings\tCtrl+S')
-        settings_item.SetBitmap(wx.Bitmap('cog.png'))
         app_menu.AppendItem(settings_item)
 
         quit_item = app_menu.Append(APP_EXIT, 'Quit', 'Quit')
-        quit_item.SetBitmap(wx.Bitmap('door_out.png'))
 
         menu_bar.Append(app_menu, '&Application')
         self.SetMenuBar(menu_bar)

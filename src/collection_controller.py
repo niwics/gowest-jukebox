@@ -8,7 +8,7 @@ import os
 import sqlite3
 
 from hsaudiotag import auto
-from app import App, SQLITE_DB_FILE
+from app import App
 from song import Song
 
 class CollectionError(Exception):
@@ -60,7 +60,7 @@ class CollectionController():
         col_names = ",".join(CollectionController.DB_COL_NAMES)
         question_marks = ",".join(["?"] * len(CollectionController.DB_COL_NAMES))
 
-        conn = sqlite3.connect(SQLITE_DB_FILE)
+        conn = sqlite3.connect(App._sqlite_db_file)
 
         # drop the old table
         conn.execute("DROP TABLE IF EXISTS song")
@@ -79,15 +79,23 @@ class CollectionController():
         conn.close()
 
     def get_songs_count(self):
+        if self.songs is None:
+            self._load_from_db()
         return 0 if self.songs is None else len(self.songs)
 
     def get_all_songs(self):
-
         if self.songs is None:
-            self.songs = []
-            conn = sqlite3.connect(SQLITE_DB_FILE)
-            conn.row_factory=sqlite3.Row
+            self._load_from_db()
+        return self.songs
+
+    def _load_from_db(self):
+        self.songs = []
+        conn = sqlite3.connect(App._sqlite_db_file)
+        conn.row_factory=sqlite3.Row
+        try:
             for row in conn.execute("SELECT * FROM song ORDER BY artist, year, album, title"):
                 self.songs.append(Song(row['filename'], row['title'], row['artist'], row['album'], row['duration'], row['year']))
-
-        return self.songs
+        except sqlite3.OperationalError, e:
+            # create the new table
+            col_names = ",".join(CollectionController.DB_COL_NAMES)
+            conn.execute("CREATE TABLE IF NOT EXISTS song(%s)" % col_names)

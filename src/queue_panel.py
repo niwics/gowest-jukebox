@@ -10,13 +10,14 @@ import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 from wx.lib.wordwrap import wordwrap
 
+from collection_controller import CollectionController
 from queue_song_panel import QueueSongPanel
 
 
 class QueuePanel(ScrolledPanel):
 
-    EMPTY_TEXT = "Press enter or space to play the selected song!"
-
+    EMPTY_TEXT = "Press enter or space to play the selected song.\nUse arrow keys to move in your music collection."
+    NO_SONGS_TEXT = "Import your music via Application > Settings menu"
 
     def __init__(self, parent):
         """
@@ -33,13 +34,13 @@ class QueuePanel(ScrolledPanel):
         empty_font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
         empty_font.SetWeight(wx.BOLD)
         empty_font.SetPointSize(empty_font.GetPointSize()+2)
-        self.empty_label = wx.StaticText(self, label=self.EMPTY_TEXT, style=wx.ALIGN_CENTER)
+        self.empty_label = wx.StaticText(self, label=self._get_basic_label_text(), style=wx.ALIGN_CENTER)
         self.empty_label.SetFont(empty_font)
         self._vsizer.Add(self.empty_label, flag=wx.EXPAND|wx.ALL, border=4)
 
         self.SetSizer(self._vsizer)
 
-        self.Bind(wx.EVT_SIZE, self.on_size)
+        self.Bind(wx.EVT_SIZE, self._on_size)
 
 
     def enqueue(self, song):
@@ -53,11 +54,11 @@ class QueuePanel(ScrolledPanel):
 
         self._vsizer.Add(QueueSongPanel(self, song), flag=wx.EXPAND|wx.ALL, border=4)
 
-        self.play(song)
+        self._play(song)
 
         self.Layout()   # redraw
 
-    def play(self, song):
+    def _play(self, song):
         """
         Play the given song.
         :param song:
@@ -72,7 +73,7 @@ class QueuePanel(ScrolledPanel):
             dial = wx.MessageDialog(None, 'Error while playing song file %s: %s' % (song.filename, e), 'Error while playing', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
 
-    def on_size(self, event):
+    def _on_size(self, event):
         """
         Resize the empty label text - wrap into lines.
         :param event:
@@ -80,5 +81,9 @@ class QueuePanel(ScrolledPanel):
         """
         if self.empty_label:
             width = event.GetSize()[0]
-            wrapped_text = wordwrap(self.EMPTY_TEXT, width, wx.ClientDC(self.empty_label))
+            wrapped_text = wordwrap(self._get_basic_label_text(), width, wx.ClientDC(self.empty_label))
             self.empty_label.SetLabel(wrapped_text)
+
+    def _get_basic_label_text(self):
+        collection_ctr = CollectionController()
+        return self.NO_SONGS_TEXT if collection_ctr.get_songs_count() == 0 else self.EMPTY_TEXT

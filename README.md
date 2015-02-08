@@ -5,6 +5,7 @@ Jukebox app for your party!
 
 ## Installation requrements
 - Python >= 2.7
+- wxPython >= 3.0
 - hsaudiotag library >= 1.1.1 for reading songs tags (installation via pypi - https://pypi.python.org/pypi/hsaudiotag)
 - Pygame library >= 1.9 for playing songs (installation packages available on http://pygame.org/download.shtml)
 

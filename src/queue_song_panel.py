@@ -5,7 +5,7 @@
 # @author: www.niwi.cz
 
 import wx
-
+import os
 
 class QueueSongPanel(wx.Panel):
 
@@ -22,7 +22,8 @@ class QueueSongPanel(wx.Panel):
         main_hsizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # album image
-        img = wx.Image("../music-notes.png", wx.BITMAP_TYPE_ANY)
+        img_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "music-notes.png")
+        img = wx.Image(img_path, wx.BITMAP_TYPE_ANY)
         img = img.Scale(100, 100)
         image_ctrl = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(img))
         main_hsizer.Add(image_ctrl, 0, wx.ALL, 10)
